@@ -28,6 +28,11 @@ setTimeout(() => window.onYouTubeIframeAPIReady(), 30);`;
   page.on('dialog', (d) => d.accept());
   await page.route('https://www.youtube.com/iframe_api', (r) => r.fulfill({ contentType: 'text/javascript', body: FAKE_YT }));
   await page.route('https://cdnjs.cloudflare.com/**', (r) => r.fulfill({ contentType: 'text/javascript', body: '/* stub */' }));
+  // test beží v ukážkovom režime aj vtedy, keď je v config.js vyplnené API_URL
+  await page.route('**/config.js', async (r) => {
+    const body = (await (await r.fetch()).text()).replace(/API_URL:\s*'[^']*'/, "API_URL: ''");
+    r.fulfill({ contentType: 'text/javascript', body });
+  });
 
   const cards = () => page.$$eval('#catalog .vcard h3', (els) => els.map((e) => e.textContent));
   let checks = 0;
