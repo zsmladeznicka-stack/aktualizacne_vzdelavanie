@@ -37,6 +37,11 @@ setTimeout(() => window.onYouTubeIframeAPIReady(), 30);`;
   const cards = () => page.$$eval('#catalog .vcard h3', (els) => els.map((e) => e.textContent));
   let checks = 0;
   const ok = (c, m) => { assert.ok(c, m); checks++; };
+  const openCard = async (o) => {
+    const sel = `#catalog details[data-order="${o}"]`;
+    if (!(await page.$eval(sel, (d) => d.open))) await page.click(sel + ' > summary');
+  };
+  const startCard = async (o) => { await openCard(o); await page.click(`#catalog [data-start="${o}"]`); };
 
   await page.goto(URL);
   await page.click('#demo-login button');
@@ -54,6 +59,17 @@ setTimeout(() => window.onYouTubeIframeAPIReady(), 30);`;
   ok((await page.textContent('#progress')).includes('splnené 0 z 5'), 'postup 0 z 5');
   ok((await page.$$('#catalog [data-start]')).length === 1, 'spustiť sa dá len povinné');
   ok((await page.textContent('#catalog')).includes('Odomkne sa po splnení povinného videa'), 'zamknuté voliteľné');
+  // karty sú zbalené, rozbalené je len povinné video
+  ok((await page.$$('#catalog details.vcard[open]')).length === 1 && await page.$eval('#catalog details[data-order="5"]', (d) => d.open), 'rozbalené len povinné');
+  ok(!(await page.isVisible('#catalog details[data-order="1"] .annot')), 'zbalená karta skrýva anotáciu');
+  ok(await page.isVisible('#catalog details[data-order="1"] summary h3') && (await page.textContent('#catalog details[data-order="1"] summary')).includes('1:13:11'), 'zbalená karta: názov a dĺžka');
+  await page.click('#catalog details[data-order="1"] > summary');
+  ok(await page.isVisible('#catalog details[data-order="1"] .annot'), 'klik rozbalí kartu');
+  await page.fill('#search', 'a');
+  ok(await page.isVisible('#catalog details[data-order="1"] .annot'), 'rozbalenie ostane po prekreslení');
+  await page.fill('#search', '');
+  await page.click('#catalog details[data-order="1"] > summary');
+  ok(!(await page.isVisible('#catalog details[data-order="1"] .annot')), 'klik zbalí kartu');
   await page.screenshot({ path: OUT + '/1-home.png', fullPage: true });
 
   // filter nálepok (ALEBO) a vyhľadávanie
@@ -73,13 +89,14 @@ setTimeout(() => window.onYouTubeIframeAPIReady(), 30);`;
   list = await cards();
   ok(list.length === 1, 'vyhľadávanie v anotácii');
   await page.fill('#search', '');
+  await page.click('#catalog .vcard:nth-child(2) > summary');
   await page.click('#catalog .vcard:nth-child(2) [data-tag]');
   ok((await page.$$('#tags .tag.on')).length === 1, 'klik na nálepku v karte zapne filter');
   await page.click('#tags-clear');
   ok((await cards()).length === 10, 'zrušenie filtra');
 
   // povinné video: ochrana proti pretáčaniu, pozeranie, test
-  await page.click('#catalog [data-start="5"]');
+  await startCard(5);
   await page.waitForSelector('#view-video:not([hidden])');
   ok((await page.textContent('#video-notice')).includes('Ukážkový režim'), 'ukážková poznámka');
   await page.waitForTimeout(300);
@@ -120,7 +137,7 @@ setTimeout(() => window.onYouTubeIframeAPIReady(), 30);`;
   ok(!(await page.$eval('#howto', (d) => d.open)), 'návod zbalený po začatí');
 
   // rozpracované video a zanechanie
-  await page.click('#catalog [data-start="1"]');
+  await startCard(1);
   await page.waitForSelector('#view-video:not([hidden])');
   await page.waitForTimeout(300);
   await page.evaluate(() => { window.__speed = 7; });
@@ -145,7 +162,7 @@ setTimeout(() => window.onYouTubeIframeAPIReady(), 30);`;
   for (let k = 0; k < 5; k++) await page.click('#course-name');
   await page.waitForSelector('#god-bar:not([hidden])');
   for (const o of [1, 2, 4, 6, 7]) {
-    await page.click(`#catalog [data-start="${o}"]`);
+    await startCard(o);
     await page.waitForSelector('#view-video:not([hidden])');
     await page.click('#god-pass');
     await page.waitForSelector('#view-home:not([hidden])');
@@ -164,13 +181,14 @@ setTimeout(() => window.onYouTubeIframeAPIReady(), 30);`;
   await page.click('#cert-back');
 
   // ďalšie video navyše
-  await page.click('#catalog [data-start="8"]');
+  await startCard(8);
   await page.waitForSelector('#view-video:not([hidden])');
   await page.click('#god-pass');
   await page.waitForSelector('#view-home:not([hidden])');
   ok((await page.textContent('#progress')).includes('(navyše 1)'), 'video navyše');
 
   // opakované pozretie
+  await openCard(5);
   await page.click('#catalog [data-review="5"]');
   await page.waitForSelector('#view-video:not([hidden])');
   ok((await page.textContent('#video-title')).includes('opakované'), 'opakované pozretie');

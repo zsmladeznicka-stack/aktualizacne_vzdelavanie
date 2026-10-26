@@ -15,6 +15,7 @@
   let godMode = store('god') === '1';
   let search = '';
   let activeTags = [];
+  const openCards = {}; // číslo videa → rozbalená karta v katalógu (len počas návštevy stránky)
 
   // ---------- Pomocné ----------
 
@@ -379,22 +380,29 @@
     return '<span class="badge">Nezačaté</span>';
   }
 
-  function videoCard(v) {
+  function isOpen(v) {
+    // pri prvej návšteve je rozbalené povinné video, aby bolo jasné, kde začať
+    return v.order in openCards ? openCards[v.order] : v.mandatory && !v.started;
+  }
+
+  /** Karta videa. V katalógu je zbalená (názov, dĺžka, stav), po kliknutí sa rozbalí. */
+  function videoCard(v, collapsible) {
     const a = videoActions(v);
     const cls = ['vcard', v.mandatory ? 'mandatory' : '', v.quizPassed ? 'done' : v.started ? 'progress' : ''].join(' ');
     const tags = v.tags.map((t) => `<button class="tag${activeTags.includes(t) ? ' on' : ''}" data-tag="${esc(t)}">${esc(t)}</button>`).join('');
-    return `<article class="${cls}">
-      <div class="vhead"><h3>${esc(v.title)}</h3>${statusBadge(v)}</div>
-      <div class="meta">${v.mandatory ? '<span class="badge mand">Povinné</span>' : ''}<span>${fmt(v.duration)}</span></div>
-      ${v.annotation ? `<p class="annot">${esc(v.annotation)}</p>` : ''}
+    const head = `<h3>${esc(v.title)}</h3>
+      <span class="meta">${v.mandatory ? '<span class="badge mand">Povinné</span>' : ''}<span>${fmt(v.duration)}</span>${statusBadge(v)}</span>`;
+    const body = `${v.annotation ? `<p class="annot">${esc(v.annotation)}</p>` : ''}
       ${tags ? `<div class="vtags">${tags}</div>` : ''}
-      ${a.note || a.buttons ? `<div class="vactions">${a.note ? `<span class="note">${esc(a.note)}</span>` : ''}${a.buttons}</div>` : ''}
-    </article>`;
+      ${a.note || a.buttons ? `<div class="vactions">${a.note ? `<span class="note">${esc(a.note)}</span>` : ''}${a.buttons}</div>` : ''}`;
+    if (!collapsible) return `<article class="${cls}"><div class="vhead">${head}</div>${body}</article>`;
+    return `<details class="${cls}" data-order="${v.order}"${isOpen(v) ? ' open' : ''}>
+      <summary class="vhead">${head}</summary>${body}</details>`;
   }
 
   function renderCurrent() {
     const v = state.inProgress === null ? null : byOrder(state.inProgress);
-    $('#current').innerHTML = v ? `<h2 class="current-title">Rozpracované video</h2>${videoCard(v)}` : '';
+    $('#current').innerHTML = v ? `<h2 class="current-title">Rozpracované video</h2>${videoCard(v, false)}` : '';
   }
 
   /** Nálepky zoradené podľa počtu videí (všeobecné skôr), potom abecedne. */
@@ -423,7 +431,7 @@
     info.hidden = !filtered;
     info.textContent = filtered
       ? `Zobrazené: ${list.length} z ${state.videos.length}` + (activeTags.length > 1 ? ' (videá s aspoň jednou zo zvolených nálepiek)' : '') : '';
-    $('#catalog').innerHTML = list.length ? list.map(videoCard).join('') : '<p class="muted">Žiadne video nevyhovuje výberu.</p>';
+    $('#catalog').innerHTML = list.length ? list.map((v) => videoCard(v, true)).join('') : '<p class="muted">Žiadne video nevyhovuje výberu.</p>';
     if ($('#tags-clear')) $('#tags-clear').onclick = () => { activeTags = []; renderCatalog(); };
   }
 
@@ -832,6 +840,8 @@
   $('#fwd30').onclick = () => seekBy(30);
   $('#bar').addEventListener('click', seekToBar);
   $('#view-home').addEventListener('click', onCatalogClick);
+  // toggle nebublá, preto zachytávanie (capture) na celom katalógu
+  $('#catalog').addEventListener('toggle', (e) => { openCards[e.target.dataset.order] = e.target.open; }, true);
   $('#search').addEventListener('input', (e) => { search = e.target.value.trim(); renderCatalog(); });
   $('#god-skip').onclick = () => godAction('godSkipVideo');
   $('#god-pass').onclick = () => godAction('godPassQuiz');

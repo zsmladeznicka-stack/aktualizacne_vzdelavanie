@@ -159,14 +159,22 @@ label input { display: block; width: 100%; margin-top: 4px; padding: 8px 10px; f
 .tag.on { background: var(--primary); border-color: var(--primary); color: #fff; }
 .tag .count { font-size: 12px; opacity: .7; margin-left: 2px; }
 #filter-info { margin: 10px 0 0; }
-.videos { display: grid; gap: 12px; margin-top: 14px; }
-.vcard { border: 1px solid var(--line); border-left: 6px solid var(--line); border-radius: var(--radius); padding: 14px 18px; background: var(--surface); }
+.videos { display: grid; gap: 8px; margin-top: 14px; }
+.vcard { border: 1px solid var(--line); border-left: 6px solid var(--line); border-radius: var(--radius); padding: 10px 16px; background: var(--surface); }
 .vcard.mandatory { border-left-color: #7c3aed; }
 .vcard.progress { border-left-color: var(--primary); background: #f5f8ff; }
 .vcard.done { border-left-color: var(--ok); }
-.vhead { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
-.vhead h3 { font-size: 17px; margin: 0; }
-.meta { display: flex; gap: 8px; align-items: center; color: var(--muted); font-size: 14px; margin: 4px 0 0; }
+.vhead { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 4px 12px; }
+.vhead h3 { flex: 1 1 260px; font-size: 16px; margin: 0; }
+.meta { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; color: var(--muted); font-size: 14px; }
+summary.vhead { cursor: pointer; list-style: none; margin: -10px -16px; padding: 10px 16px 10px 36px; position: relative; }
+summary.vhead::-webkit-details-marker { display: none; }
+summary.vhead::before { content: '▸'; position: absolute; left: 14px; top: 9px; color: var(--muted); font-size: 16px; transition: transform .15s; }
+details.vcard[open] > summary.vhead::before { transform: rotate(90deg); }
+summary.vhead:hover h3 { color: var(--primary); }
+details.vcard[open] > summary.vhead { margin-bottom: 0; }
+details.vcard > .annot, details.vcard > .vtags, details.vcard > .vactions { margin-left: 20px; }
+details.vcard[open] { padding-bottom: 14px; }
 .annot { margin: 8px 0 0; font-size: 15px; }
 .vtags { display: flex; flex-wrap: wrap; gap: 6px; margin: 10px 0 0; }
 .vtags .tag { font-size: 13px; padding: 2px 9px; }
