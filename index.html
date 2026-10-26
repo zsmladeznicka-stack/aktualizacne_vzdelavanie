@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="sk">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Aktualizačné vzdelávanie</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand" id="course-name">Aktualizačné vzdelávanie</div>
+    <div class="user" id="user-box" hidden>
+      <span id="user-name"></span>
+      <button id="logout" class="link">Odhlásiť</button>
+    </div>
+  </header>
+
+  <div id="god-bar" class="god-bar" hidden>
+    <strong>GOD MODE</strong>
+    <span>testovací režim – vidí ho len administrátor</span>
+    <span class="spacer"></span>
+    <button class="btn" id="god-skip">Preskočiť video</button>
+    <button class="btn" id="god-pass">Splniť test</button>
+    <button class="btn" id="god-reset">Vynulovať môj priebeh</button>
+    <button class="btn" id="god-off">Vypnúť</button>
+  </div>
+
+  <div id="error" class="banner error" hidden></div>
+
+  <main>
+    <section id="view-loading"><p class="muted center">Načítavam…</p></section>
+
+    <section id="view-login" hidden>
+      <div class="card narrow">
+        <h1>Prihlásenie</h1>
+        <p>Prihláste sa svojím školským Google účtom <strong id="login-domain"></strong>.</p>
+        <div id="gsi-button"></div>
+        <form id="demo-login" hidden>
+          <p class="banner warn">Ukážkový režim: aplikácia ešte nie je prepojená s Google. Priebeh sa ukladá len v tomto prehliadači.</p>
+          <label>Vaše meno
+            <input id="demo-name" required value="Mgr. Ukážka Učiteľová">
+          </label>
+          <button class="btn primary">Vstúpiť</button>
+        </form>
+        <p id="login-msg" class="muted"></p>
+      </div>
+    </section>
+
+    <section id="view-home" hidden>
+      <div class="card">
+        <h1>Dobrý deň, <span id="hello-name"></span></h1>
+        <div id="status"></div>
+        <details id="howto" class="howto">
+          <summary>Ako funguje vzdelávanie – prečítajte si pred začatím</summary>
+          <div id="howto-body"></div>
+        </details>
+        <div id="progress" class="progress-box"></div>
+        <div id="current"></div>
+      </div>
+
+      <div class="card catalog">
+        <h2>Katalóg videí</h2>
+        <input type="search" id="search" class="search" placeholder="Hľadať v názve a anotácii…" aria-label="Hľadať video">
+        <div id="tags" class="tags" aria-label="Nálepky"></div>
+        <p id="filter-info" class="muted small" hidden></p>
+        <div id="catalog" class="videos"></div>
+      </div>
+    </section>
+
+    <section id="view-video" hidden>
+      <div class="row">
+        <button class="btn ghost" id="video-back">← Katalóg</button>
+        <h2 id="video-title"></h2>
+      </div>
+      <div class="rules" id="rules">
+        <span class="rules-icon" aria-hidden="true">!</span>
+        <div id="rules-text"></div>
+      </div>
+      <div id="player-box" class="player-box">
+        <div class="player-frame">
+          <div id="yt-host"></div>
+          <div class="shield" id="shield" title="Prehrať / pozastaviť"></div>
+        </div>
+        <div class="controls">
+          <button id="play" class="btn primary">▶ Prehrať</button>
+          <button id="back10" class="btn ghost" hidden title="10 sekúnd dozadu">⟲ 10 s</button>
+          <button id="fwd30" class="btn ghost" hidden title="30 sekúnd dopredu">30 s ⟳</button>
+          <div class="bar" id="bar" aria-hidden="true">
+            <div class="bar-watched" id="bar-watched"></div>
+            <div class="bar-current" id="bar-current"></div>
+          </div>
+          <span id="time" class="time">0:00 / 0:00</span>
+          <input type="range" id="volume" min="0" max="100" value="80" aria-label="Hlasitosť">
+          <button id="fullscreen" class="btn ghost" title="Celá obrazovka">⛶</button>
+        </div>
+      </div>
+      <div id="video-notice" class="banner" hidden></div>
+      <button id="to-quiz" class="btn primary big" hidden>Pokračovať na test →</button>
+    </section>
+
+    <section id="view-quiz" hidden>
+      <div class="quiz-head">
+        <h2 id="quiz-title"></h2>
+        <p id="quiz-info" class="muted"></p>
+      </div>
+      <form id="quiz-form"></form>
+      <button id="quiz-submit" class="btn primary big">Odovzdať test</button>
+    </section>
+
+    <section id="view-result" hidden>
+      <div class="card narrow center" id="result-box"></div>
+    </section>
+
+    <section id="view-cert" hidden>
+      <div class="row no-print">
+        <button class="btn ghost" id="cert-back">← Katalóg</button>
+        <span class="spacer"></span>
+        <button class="btn" id="cert-print">Tlačiť</button>
+        <button class="btn primary" id="cert-pdf">Stiahnuť PDF</button>
+      </div>
+      <div class="cert-wrap">
+        <div class="certificate" id="certificate">
+          <div class="cert-inner">
+            <div class="cert-school" id="cert-school"></div>
+            <div class="cert-title">OSVEDČENIE</div>
+            <div class="cert-small">sa udeľuje</div>
+            <div class="cert-name" id="cert-name"></div>
+            <div class="cert-small">za úspešné absolvovanie vzdelávania</div>
+            <div class="cert-course" id="cert-course"></div>
+            <div class="cert-text" id="cert-text"></div>
+            <div class="cert-foot">
+              <div>Vzdelávanie ukončené: <span id="cert-completed"></span><br>Dátum vydania: <span id="cert-date"></span><br>Číslo osvedčenia: <span id="cert-id"></span></div>
+              <div class="sign">pečiatka a podpis</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script src="config.js"></script>
+  <script src="demo-api.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
