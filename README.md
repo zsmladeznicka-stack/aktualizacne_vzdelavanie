@@ -42,7 +42,7 @@ Kým nie je vyplnené `API_URL` v `config.js`, aplikácia beží v **ukážkovom
 
 | Hárok | Obsah |
 |---|---|
-| **Videa** | Poradie, Názov, YouTube ID, Dĺžka (sekundy), Anotácia, Nálepky (oddelené čiarkou). Riadok bez YouTube ID alebo bez dĺžky aplikácia preskočí. |
+| **Videa** | Poradie, Názov, YouTube ID, Dĺžka (sekundy), Anotácia, Nálepky (oddelené čiarkou). Video bez YouTube ID, bez dĺžky alebo bez otázok aplikácia nezobrazí. Nové video sa teda dá zapísať vopred a v aplikácii sa objaví, až keď má otázky. |
 | **Otazky** | Video (číslo z hárku Videa), Otázka, A, B, C, D, Správna (A–D) |
 | **Priebeh** | jeden riadok na učiteľa a video: pozretý čas, pokusy, najlepšie skóre, splnenie, čas spustenia, počet zanechaní. Riadky sa nemažú. |
 | **Osvedcenia** | vydané osvedčenia s číslami |

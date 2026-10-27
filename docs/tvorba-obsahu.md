@@ -73,6 +73,7 @@ Odkaz na tabuľku nie je v repozitári, lebo repozitár je verejný a tabuľka o
 
 - **Dĺžka videa v sekundách musí presne sedieť s YouTube.** Ak je v tabuľke väčšia, učiteľ video nikdy nedokončí a test sa neodomkne.
 - **YouTube ID nikdy nezapisuj bez dĺžky.** Server riadok bez dĺžky preskočí, ale aj tak ID bez dĺžky nenechávaj.
+- Video bez otázok server nezobrazí (test bez otázok by sa rátal ako splnený). Nové videá sa preto dajú zapísať do hárku Videa hneď a v aplikácii sa objavia, až keď majú otázky.
 - **Číslo v stĺpci Poradie sa nemení.** Otázky aj priebeh sú naň naviazané. Pri vyradení videa ostane v číslovaní medzera.
 - **Riadky v hárku Priebeh sa nikdy nemažú.**
 - Po zápise vždy over obsah cez `get_values`.

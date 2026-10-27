@@ -164,12 +164,13 @@ function tags_(cell) {
 }
 
 /**
- * Videá z hárku Videa. Riadok bez YouTube ID alebo bez dĺžky sa preskočí –
- * video s nulovou dĺžkou by sa inak hneď rátalo ako dopozerané.
+ * Videá z hárku Videa. Riadok bez YouTube ID, bez dĺžky alebo bez otázok sa preskočí –
+ * video s nulovou dĺžkou by sa inak hneď rátalo ako dopozerané a test bez otázok ako splnený.
  */
 function videos_() {
+  const counts = questionCounts_();
   return cachedRows_(SHEET.VIDEOS)
-    .filter(r => r[0] !== '' && String(r[2]).trim() && Number(r[3]) > 0)
+    .filter(r => r[0] !== '' && String(r[2]).trim() && Number(r[3]) > 0 && counts[Number(r[0])] > 0)
     .map(r => ({
       order: Number(r[0]), title: String(r[1]), youtubeId: String(r[2]).trim(), duration: Number(r[3]),
       annotation: String(r[4] || ''), tags: tags_(r[5]),

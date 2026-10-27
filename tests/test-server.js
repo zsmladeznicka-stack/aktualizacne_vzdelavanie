@@ -14,7 +14,8 @@ V.data = [['Poradie', 'Názov', 'YouTube ID', 'Dĺžka (sekundy)', 'Anotácia', 
   [4, 'Chémia', 'ccc', 600, '', 'Chémia'],
   [5, 'Bezpečnosť', 'ddd', 600, '', 'Kyberbezpečnosť'],
   [6, 'Bez dĺžky', 'eee', '', '', ''],
-  [7, 'Bez ID', '', 600, '', '']];
+  [7, 'Bez ID', '', 600, '', ''],
+  [8, 'Bez otázok', 'fff', 600, '', '']];
 const Q = env.ss.insertSheet('Otazky');
 Q.data = [['Video', 'Otázka', 'A', 'B', 'C', 'D', 'Správna (A–D)']];
 [1, 2, 4, 5].forEach(v => { for (let k = 0; k < 8; k++) Q.data.push([v, `Otázka ${k} k ${v}`, 'a', 'b', 'c', 'd', 'ABCD'[k % 4]]); });
@@ -22,7 +23,7 @@ const CORRECT = [0, 1, 2, 3, 0, 1, 2, 3];
 
 env.run('setup');
 ok(env.sheets.Priebeh && env.sheets.Nastavenia && env.sheets.Osvedcenia && env.sheets.Ucastnici, 'setup vytvorí hárky');
-eq(env.sheets.Videa.data.length, 7, 'setup nezmení existujúce Videa');
+eq(env.sheets.Videa.data.length, 8, 'setup nezmení existujúce Videa');
 const S = env.sheets.Nastavenia;
 const setS = (name, val) => { const r = S.data.find(x => String(x[0]).indexOf(name) === 0); r[1] = val; };
 eq(S.data.find(r => r[0] === 'Vzdelávanie aktívne')[1], 0, 'predvolene vypnuté');
@@ -40,7 +41,7 @@ ok(s1, 'session');
 eq(t1.active, false, 'neaktívne');
 eq(t1.canStart, false, 'učiteľ nemôže pri vypnutom');
 eq(env.sheets.Ucastnici.data.length, 1, 'pri vypnutom sa učiteľ neeviduje');
-eq(t1.videos.map(v => v.order), [1, 2, 4, 5], 'skryté videá bez ID alebo dĺžky');
+eq(t1.videos.map(v => v.order), [1, 2, 4, 5], 'skryté videá bez ID, dĺžky alebo otázok');
 eq(t1.videos[1].tags, ['AI', 'Tvorba materiálov'], 'nálepky bez duplicít a prázdnych');
 eq(t1.videos[0].questions, 8, 'počet otázok');
 eq(t1.videos[0].needed, 6, '6 z 8 pri 75 %');
@@ -71,6 +72,7 @@ eq(env.post({ action: 'heartbeat', session: s1, video: 5, position: 5 }).error, 
 eq(env.post({ action: 'start', session: s1, video: 1 }).error, 'Najprv splňte povinné video a test k nemu.', 'voliteľné pred povinným');
 eq(env.post({ action: 'start', session: s1, video: 99 }).error, 'Neznáme video.', 'neznáme video');
 eq(env.post({ action: 'start', session: s1, video: 6 }).error, 'Neznáme video.', 'skryté video');
+eq(env.post({ action: 'start', session: s1, video: 8 }).error, 'Neznáme video.', 'video bez otázok sa nedá spustiť');
 let st = env.post({ action: 'start', session: s1, video: 5 });
 eq(st.inProgress, 5, 'rozpracované 5');
 eq(env.sheets.Priebeh.data.length, 2, 'jeden riadok priebehu');
